@@ -108,18 +108,14 @@ I'd recommend you to run the app from executable:
 - Go to `Settings` and set CamillaDSP config file that was set previously
 
 ### 4. Build executable from sources
-   - Install pyinstaller:
-   ```commandline
-     pip install pyinstaller
-   ```
    - Go to the directory to which this repository is downloaded
    - Create new virtual environment:
      ```commandline
-     python3 venv venv
+     python3 -m venv .venv
      ```
    - Activate the environment:
      ```commandline
-     source venv/bin/activate
+     source .venv/bin/activate
      ```
    - Install python dependencies:
      ```commandline
@@ -129,9 +125,13 @@ I'd recommend you to run the app from executable:
      ```commandline
      python -m cameliaeq
      ```
-   - Or build executable - go to `cameliaeq` and execute command, your executables should be in `/cameliaeq/dist`:
+   - Install pyinstaller:
+   ```commandline
+     pip install pyinstaller
+   ```
+   - Or build executable (your executables should be in `/dist`):
      ```commandline
-     pyinstaller --onefile --icon=../icon.icns --name="cameliaEQ" __main__.py
+     pyinstaller --windowed --onefile --icon=icon.icns --name="cameliaEQ" cameliaeq/__main__.py
      ```
 
 ### Autostart
