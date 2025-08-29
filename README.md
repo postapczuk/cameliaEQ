@@ -106,6 +106,7 @@ I'd recommend you to run the app from executable.
      ```commandline
      ./cameliaEQ
      ```
+   - Go to `Settings` and set CamillaDSP config file that was set previously
 1. From sources:
    - Go to the directory to which this repository is downloaded
    - Create new virtual environment:
