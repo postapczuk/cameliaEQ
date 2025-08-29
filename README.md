@@ -98,16 +98,20 @@ ___
 ___
 ### 3. Run CameliaEQ
 There are two options to run the app. If you are not familiar with python, and you don't want to learn it, 
-I'd recommend you to run the app from executable.
+I'd recommend you to run the app from executable:
 
-1. From executable:
-   - Download and extract executable from Releases page in this repo valid for your system
-   - Double click the app icon, or run in commandline:
-     ```commandline
-     ./cameliaEQ
-     ```
-   - Go to `Settings` and set CamillaDSP config file that was set previously
-1. From sources:
+- Download and extract executable from Releases page in this repo valid for your system
+- Double click the app icon, or run in commandline:
+  ```commandline
+  ./cameliaEQ
+  ```
+  - Go to `Settings` and set CamillaDSP config file that was set previously
+
+### 4. Build executable from sources
+   - Install pyinstaller:
+   ```commandline
+     pip install pyinstaller
+   ```
    - Go to the directory to which this repository is downloaded
    - Create new virtual environment:
      ```commandline
@@ -121,9 +125,13 @@ I'd recommend you to run the app from executable.
      ```commandline
      pip install -r requirements.txt
      ```
-   - Run the app via command line:
+   - You can run the app via command line directly:
      ```commandline
      python -m cameliaeq
+     ```
+   - Or build executable - go to `cameliaeq` and execute command, your executables should be in `/cameliaeq/dist`:
+     ```commandline
+     pyinstaller --onefile --icon=../icon.icns --name="cameliaEQ" __main__.py
      ```
 
 ### Autostart

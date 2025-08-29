@@ -124,6 +124,10 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
     if dev.get('chunksize') != 1024:
         dev['chunksize'] = 1024
         changed = True
+    # Ensure samplerate
+    if dev.get('samplerate') != 44100:
+        dev['samplerate'] = 44100
+        changed = True
     # Ensure capture
     cap = dev.get('capture')
     if not isinstance(cap, dict):
