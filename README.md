@@ -105,7 +105,7 @@ I'd recommend you to run the app from executable:
   ```commandline
   ./cameliaEQ
   ```
-  - Go to `Settings` and set CamillaDSP config file that was set previously
+- Go to `Settings` and set CamillaDSP config file that was set previously
 
 ### 4. Build executable from sources
    - Install pyinstaller:
