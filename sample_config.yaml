@@ -1,0 +1,65 @@
+devices:
+  capture:
+    channels: 2
+    device: BlackHole 2ch
+    type: CoreAudio
+  chunksize: 1024
+  playback:
+    channels: 2
+    device: KOSS Porta Pro Wireless
+    type: CoreAudio
+  samplerate: 44100
+filters:
+  Bass:
+    parameters:
+      freq: 85
+      gain: 7
+      q: 0.9
+      type: Lowshelf
+    type: Biquad
+  Middle:
+    description: null
+    parameters:
+      freq: 1000
+      gain: 5
+      q: 0.5
+      type: Peaking
+    type: Biquad
+  Treble:
+    description: null
+    parameters:
+      freq: 6500
+      gain: 9
+      q: 0.7
+      type: Highshelf
+    type: Biquad
+mixers: {}
+pipeline:
+- bypassed: null
+  channels:
+  - 0
+  - 1
+  description: null
+  names:
+  - Bass
+  type: Filter
+- bypassed: null
+  channels:
+  - 0
+  - 1
+  description: null
+  names:
+  - Middle
+  type: Filter
+- bypassed: null
+  type: Filter   
+- bypassed: null
+  channels:
+  - 0
+  - 1
+  description: null
+  names:
+  - Treble
+  type: Filter
+processors: {}
+title: CameliaEQ
