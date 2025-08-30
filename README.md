@@ -6,7 +6,7 @@ Simple tray app for macOS/Linux to control Bass/Middle/Treble gains in a Camilla
 ![Scrshot](eqalizer.png)
 
 ## Background
-There are few free and open source equalizers for macOS and Linux. Of course there is
+There are not much free and open source equalizers for macOS and Linux. Of course there is
 __eqMac__, but it's troublesome while switching devices, and random crashes, so I've decided 
 to find an alternative solution.
 
