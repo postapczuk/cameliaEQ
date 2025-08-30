@@ -23,8 +23,10 @@ I did review and modified the resulting code, but there might be some bugs and f
 As LICENSE says: I'm not responsible for any harm that could happen during usage of
 this software. I've created this just for my use and decided to share it with others.
 
-## Running the app
-### Requirements
+
+# Running the app
+___
+## Requirements
 - Python 3.9+
 - blackhole-2ch installed
 - running CamillaDSP
@@ -34,23 +36,24 @@ Settings are stored in a user config file `settings.yml`. Paths:
 - macOS `~/Library/Application Support/CameliaEQ/settings.yml`
 - Linux `~/.config/CameliaEQ/settings.yml`.
 
+
 ## macOS
+___
 
 ### 1. Install BlackHole driver
 ```commandline
 brew install --cask blackhole-2ch
 ```
-___
 
 ### 2. Install CamillaDSP (the trickiest part)
+
+- ###### Steps contain placeholders you need to replace:
+  - `<DIRECTORY_TO_CAMILLADSP>` with your directory to `camilladsp`
+  - `<WEBSOCKET_PORT>` to control CamillaDSP over WebSocket. If you don't know what it means, put `1234`
+  -`<CONFIG>` configuration file you'd like to use
+
+
 - Download and extract a specific version for your computer https://github.com/HEnquist/camilladsp/releases/tag/v3.0.1
-
-###### Next steps will contain placeholders you need to replace:
-- `<DIRECTORY_TO_CAMILLADSP>` with your directory to `camilladsp`
-- `<WEBSOCKET_PORT>` to control CamillaDSP over WebSocket. If you don't know what it means, put `1234`
-- `<CONFIG>` configuration file you'd like to use
-
-#### macOS (tested on 15.6.1)
 - Open terminal and go to directory with `camilladsp` executable
 - Create new CamillaDSP config file with title, all other properties will be set by the app:
   ```
@@ -95,7 +98,6 @@ ___
   launchctl load ~/Library/LaunchAgents/com.github.camilladsp.startup.plist
   ```
 
-___
 ### 3. Run CameliaEQ
 There are two options to run the app. If you are not familiar with python, and you don't want to learn it, 
 I'd recommend you to run the app from executable:
@@ -107,7 +109,7 @@ I'd recommend you to run the app from executable:
   ```
 - Go to `Settings` and set CamillaDSP config file that was set previously
 
-### 4. Build executable from sources
+## Build executable from sources
    - Go to the directory to which this repository is downloaded
    - Create new virtual environment:
      ```commandline
@@ -126,16 +128,14 @@ I'd recommend you to run the app from executable:
      python -m cameliaeq
      ```
    - Install pyinstaller:
-   ```commandline
+     ```commandline
      pip install pyinstaller
-   ```
+     ```
    - Or build executable (your executables should be in `/dist`):
      ```commandline
      pyinstaller --windowed --onefile --icon=icon.icns --name="cameliaEQ" cameliaeq/__main__.py
      ```
 
-### Autostart
-Of course you can add this to system autostart - check the web or LLM for details.
-
+## Linux
 ___
-## Linux (TBD)
+(TBD)
