@@ -50,7 +50,7 @@ brew install --cask blackhole-2ch
 - ###### Steps contain placeholders you need to replace:
   - `<DIRECTORY_TO_CAMILLADSP>` with your directory to `camilladsp`
   - `<WEBSOCKET_PORT>` to control CamillaDSP over WebSocket. If you don't know what it means, put `1234`
-  -`<CONFIG>` configuration file you'd like to use
+  - `<CONFIG>` configuration file you'd like to use
 
 
 - Download and extract a specific version for your computer https://github.com/HEnquist/camilladsp/releases/tag/v3.0.1
