@@ -80,7 +80,7 @@ brew install --cask blackhole-2ch
   <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.githum.camilladsp.startup</string>
+    <string>com.github.camilladsp.startup</string>
     <key>ProgramArguments</key>
     <array>
       <string><DIRECTORY_TO_CAMILLADSP>/camilladsp</string>
