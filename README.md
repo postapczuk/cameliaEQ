@@ -7,7 +7,7 @@ Simple tray app for macOS/Linux to control Bass/Middle/Treble gains in a Camilla
 
 ## Background
 There are not much free and open source equalizers for macOS and Linux. Of course there is
-__eqMac__, but it's troublesome while switching devices, and random crashes, so I've decided 
+__eqMac__, but it's troublesome while switching devices, and full of random crashes, so I've decided 
 to find an alternative solution.
 
 Fortunately, there is one: BlackHole driver + CamillaDSP. Unfortunately, it's hard to use
@@ -17,7 +17,7 @@ to create a project that simply allows changing Bass/Middle/Treble gains.
 
 ## Disclaimer:
 This application is PoC that during development I used to test features of IntelliJ's 
-Juno Ai assistant. 
+Junie Ai assistant. 
 
 I did review and modified the resulting code, but there might be some bugs and flaws. 
 As LICENSE says: I'm not responsible for any harm that could happen during usage of
