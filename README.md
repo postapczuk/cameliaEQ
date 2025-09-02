@@ -3,7 +3,7 @@
 
 Simple tray app for macOS/Linux to control Bass/Middle/Treble gains in a CamillaDSP config.
 
-![Scrshot](eqalizer.png)
+![Scrshot](equalizer.png)
 
 ## Background
 There are not much free and open source equalizers for macOS and Linux. Of course there is
