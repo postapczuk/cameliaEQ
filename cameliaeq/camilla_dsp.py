@@ -5,9 +5,7 @@ import yaml
 from websocket import create_connection
 
 
-# YAML helpers
-
-def load_yaml(path: str) -> Optional[dict]:
+def load_camilla_dsp_yaml(path: str) -> Optional[dict]:
     if not path:
         return None
     try:
@@ -17,7 +15,7 @@ def load_yaml(path: str) -> Optional[dict]:
         return None
 
 
-def save_yaml(path: str, data: dict) -> bool:
+def save_camilla_dsp_yaml(path: str, data: dict) -> bool:
     try:
         with open(path, "w", encoding="utf-8") as f:
             yaml.safe_dump(data, f, sort_keys=False)
@@ -56,7 +54,7 @@ def make_pipeline_entry(name: str) -> dict:
     }
 
 
-def ensure_filters_and_pipeline(cfg: dict) -> bool:
+def ensure_filters_and_pipelines(cfg: dict) -> bool:
     changed = False
     # Ensure filters exist
     if "filters" not in cfg or cfg["filters"] is None:
@@ -138,10 +136,10 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         cap['channels'] = 2;
         changed = True
     if cap.get('device') != 'BlackHole 2ch':
-        cap['device'] = 'BlackHole 2ch';
+        cap['device'] = 'BlackHole 2ch'
         changed = True
     if cap.get('type') != 'CoreAudio':
-        cap['type'] = 'CoreAudio';
+        cap['type'] = 'CoreAudio'
         changed = True
     # Ensure playback
     pb = dev.get('playback')
@@ -150,14 +148,14 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         dev['playback'] = pb
         changed = True
     if pb.get('channels') != 2:
-        pb['channels'] = 2;
+        pb['channels'] = 2
         changed = True
     # Set selected device if provided
     if selected_device and pb.get('device') != selected_device:
-        pb['device'] = selected_device;
+        pb['device'] = selected_device
         changed = True
     if pb.get('type') != 'CoreAudio':
-        pb['type'] = 'CoreAudio';
+        pb['type'] = 'CoreAudio'
         changed = True
     # If we created a new devices section, move it to be first key
     if created_devices:
@@ -175,7 +173,7 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
     return changed
 
 
-def ensure_mixers_processors(cfg: dict) -> bool:
+def ensure_mixers_and_processors(cfg: dict) -> bool:
     """Ensure top-level mixers: {} and processors: {} exist and are placed at the end.
 
     Returns True if any changes were made (added/normalized/reordered).
@@ -246,8 +244,10 @@ def write_gain(cfg: dict, filter_name: str, gain: float) -> bool:
 
 
 # CamillaDSP reload
-def try_reload_camilla(port: int):
+def try_reload_camilla_dsp(port: int):
+    print("Reload camilla dsp...")
     if port <= 0 or port > 65535:
+        print("Failed")
         return
     try:
         ws = create_connection(f"ws://localhost:{port}", timeout=1.5)
@@ -256,16 +256,20 @@ def try_reload_camilla(port: int):
             try:
                 resp = ws.recv()
                 print("CamillaDSP configuration: " + resp)
+                print("Succeeded")
             except Exception as e:
+                print("Failed")
                 print(e)
                 pass
         finally:
             try:
                 ws.close()
             except Exception as e:
+                print("Websocket not closed!")
                 print(e)
                 pass
         return
     except Exception as ex:
+        print("Failed")
         print(ex)
         return

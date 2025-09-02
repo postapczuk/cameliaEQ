@@ -1,7 +1,6 @@
-import json
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import yaml
 from PySide6.QtCore import Qt
@@ -13,12 +12,27 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QFileDialog,
     QSpinBox,
-    QComboBox,
 )
 
-from .core import load_yaml, save_yaml, ensure_devices_section, try_reload_camilla
-from .commons import APP_NAME, user_config_dir
+from .camilla_dsp import load_camilla_dsp_yaml, save_camilla_dsp_yaml, ensure_devices_section, try_reload_camilla_dsp
 
+
+def user_config_dir() -> str:
+    """Return (and create if needed) the user configuration directory for the app.
+
+    macOS: ~/Library/Application Support/CameliaEQ
+    Linux: ~/.config/CameliaEQ
+    """
+    if sys.platform == "darwin":
+        base = os.path.expanduser("~/Library/Application Support")
+    else:
+        base = os.path.expanduser("~/.config")
+    path = os.path.join(base, APP_NAME)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+APP_NAME = "CameliaEQ"
 SETTINGS_PATH = os.path.join(user_config_dir(), "settings.yml")
 
 
@@ -27,89 +41,27 @@ class Settings:
     config_path: str = ""
     port: int = 1234
     playback_device: str = ""
+    devices: dict = field(default_factory=dict)
 
     @classmethod
     def load(cls) -> "Settings":
-        # Prefer YAML settings; migrate from legacy JSON if present
         try:
             if os.path.exists(SETTINGS_PATH):
                 with open(SETTINGS_PATH, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f) or {}
-                return cls(**{k: data.get(k, v) for k, v in {"config_path": "", "port": 1234, "playback_device": ""}.items()})
-        except Exception:
+                settings = cls(**{k: data.get(k, v) for k, v in {"config_path": "", "port": 1234, "playback_device": "", "devices": {}}.items()})
+                print(f"Settings loaded")
+                return settings
+        except Exception as e:
             pass
-        # Legacy migration: config.json
-        legacy_json = os.path.join(user_config_dir(), "config.json")
-        try:
-            if os.path.exists(legacy_json):
-                with open(legacy_json, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                inst = cls(**data)
-                # Save immediately to new YAML path
-                inst.save()
-                return inst
-        except Exception:
-            pass
+            print("Settings load failure:", e)
         return cls()
 
     def save(self) -> None:
         with open(SETTINGS_PATH, "w", encoding="utf-8") as f:
-            yaml.safe_dump({"config_path": self.config_path, "port": self.port, "playback_device": self.playback_device}, f, sort_keys=False)
-
-
-# System devices helper
-
-def list_system_playback_devices() -> list:
-    devices: list[str] = []
-    # Try QtMultimedia if available (PySide6 add-on)
-    try:
-        from PySide6.QtMultimedia import QMediaDevices
-        try:
-            devs = QMediaDevices.audioOutputs()
-            for d in devs:
-                name = getattr(d, 'description', None)
-                if callable(name):
-                    name = d.description()
-                if not name:
-                    name = getattr(d, 'deviceName', lambda: None)()
-                if name and name not in devices:
-                    devices.append(str(name))
-        except Exception:
-            pass
-    except Exception:
-        pass
-    # macOS: try CoreAudio via system command 'SwitchAudioSource' if present
-    if sys.platform == 'darwin' and not devices:
-        try:
-            import subprocess
-            out = subprocess.check_output(['SwitchAudioSource', '-a'], text=True, timeout=2)
-            for line in out.splitlines():
-                line = line.strip()
-                if line:
-                    # Lines look like: 'Built-in Output (output)'
-                    name = line.split(' (')[0].strip()
-                    if name and name not in devices:
-                        devices.append(name)
-        except Exception:
-            pass
-    # Linux: try aplay -l parsing
-    if sys.platform.startswith('linux') and not devices:
-        try:
-            import subprocess
-            out = subprocess.check_output(['aplay', '-l'], text=True, timeout=2, stderr=subprocess.STDOUT)
-            for line in out.splitlines():
-                line = line.strip()
-                if line.startswith('card') and ':' in line:
-                    # Example: card 0: PCH [HDA Intel PCH], device 0: ALC... 
-                    name_part = line.split(':', 1)[1].strip()
-                    name = name_part.split(',', 1)[0].strip()
-                    if name and name not in devices:
-                        devices.append(name)
-        except Exception:
-            pass
-    # Filter out devices with 'BlackHole' prefix
-    devices = [d for d in devices if not str(d).startswith('BlackHole')]
-    return devices
+            settings = {"config_path": self.config_path, "port": self.port, "playback_device": self.playback_device, "devices": self.devices}
+            yaml.safe_dump(settings, f, sort_keys=False)
+            print(f"Settings saved")
 
 
 class SettingsWindow(QWidget):
@@ -139,19 +91,6 @@ class SettingsWindow(QWidget):
         self.port_spin.setValue(self.settings.port)
         layout.addRow("CamillaDSP port", self.port_spin)
 
-        # Output device selection
-        self.device_combo = QComboBox()
-        devices = list_system_playback_devices()
-        if not devices:
-            self.device_combo.addItem("(No devices found)")
-            self.device_combo.setEnabled(False)
-        else:
-            self.device_combo.addItems(devices)
-            # Preselect saved setting if present
-            if self.settings.playback_device and self.settings.playback_device in devices:
-                self.device_combo.setCurrentText(self.settings.playback_device)
-        layout.addRow("Output device", self.device_combo)
-
         self.save_btn = QPushButton("Save")
         self.save_btn.clicked.connect(self.save)
         layout.addRow(self.save_btn)
@@ -167,16 +106,13 @@ class SettingsWindow(QWidget):
     def save(self):
         self.settings.config_path = self.path_edit.text()
         self.settings.port = int(self.port_spin.value())
-        if hasattr(self, 'device_combo') and self.device_combo.isEnabled():
-            self.settings.playback_device = self.device_combo.currentText()
         self.settings.save()
         # If a config file is selected, ensure devices section exists/updated
         if self.settings.config_path:
-            cfg = load_yaml(self.settings.config_path) or {}
+            cfg = load_camilla_dsp_yaml(self.settings.config_path) or {}
             changed = ensure_devices_section(cfg, self.settings.playback_device)
             if changed:
-                save_yaml(self.settings.config_path, cfg)
+                save_camilla_dsp_yaml(self.settings.config_path, cfg)
         self.on_save(self.settings)
-        print("Settings saved")
-        try_reload_camilla(self.settings.port)
+        try_reload_camilla_dsp(self.settings.port)
         self.close()

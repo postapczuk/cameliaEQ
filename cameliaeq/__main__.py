@@ -1,4 +1,4 @@
-from cameliaeq.tray import main
+from cameliaeq.app import main
 
 if __name__ == "__main__":
     print("\n"

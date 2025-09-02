@@ -2,38 +2,36 @@ import sys
 
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap, QPainter, QColor
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QSystemTrayIcon
 
-from .commons import APP_NAME, create_fallback_tray_icon
-from .settings import Settings
-from .windows import TrayWindow
+from .settings import Settings, APP_NAME
+from .tray_window import TrayWindow
 
 
 class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
         # Make this host window a tool (though we don't show it)
+        self.settings = Settings.load()
         self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
         self.setWindowIcon(QtGui.QIcon("../icon.icns"))
-        self.settings = Settings.load()
 
         # Tray icon
         self.tray = QSystemTrayIcon(self)
         # Try theme icon first; fallback to a simple drawn pixmap to ensure the tray is visible
         icon = QIcon.fromTheme("audio-volume-high")
         if icon.isNull():
-            icon = create_fallback_tray_icon()
+            icon = self.create_fallback_tray_icon()
         self.tray.setIcon(icon)
         self.tray.setToolTip(APP_NAME)
+        print("Tray icon created")
 
-        # Context menu
         self.menu = QMenu()
         self.tray.setContextMenu(self.menu)
-
         self.tray.activated.connect(self.on_tray_activated)
-
         self.tray.show()
+        print("Context menu created")
 
         # Main small window
         self.window = TrayWindow(self.settings)
@@ -91,6 +89,21 @@ class MainApp(QMainWindow):
 
     def open_settings_window(self):
         self.window.open_settings()
+
+
+    def create_fallback_tray_icon(self):
+        icon = QIcon.fromTheme("audio-volume-high")
+        if not icon.isNull():
+            return icon
+        pm = QPixmap(22, 22)
+        pm.fill(Qt.transparent)
+        p = QPainter(pm)
+        p.setRenderHint(QPainter.Antialiasing, True)
+        p.setBrush(QColor(70, 130, 180))  # steel blue
+        p.setPen(Qt.NoPen)
+        p.drawEllipse(2, 2, 18, 18)
+        p.end()
+        return QIcon(pm)
 
 
 def main():
