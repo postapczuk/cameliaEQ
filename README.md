@@ -102,7 +102,7 @@ brew install --cask blackhole-2ch
 There are two options to run the app. If you are not familiar with python, and you don't want to learn it, 
 I'd recommend you to run the app from executable:
 
-- Download and extract executable from Releases page in this repo valid for your system
+- Download and extract executable from [Releases](https://github.com/postapczuk/cameliaEQ/releases) page in this repo valid for your system
 - Double click the app icon, or run in commandline:
   ```commandline
   ./cameliaEQ
