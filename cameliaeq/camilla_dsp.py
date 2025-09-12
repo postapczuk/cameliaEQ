@@ -119,8 +119,8 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         changed = True
         created_devices = True
     # Ensure chunksize
-    if dev.get('chunksize') != 1024:
-        dev['chunksize'] = 1024
+    if dev.get('chunksize') != 256:
+        dev['chunksize'] = 256
         changed = True
     # Ensure samplerate
     if dev.get('samplerate') != 44100:
@@ -156,6 +156,9 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         changed = True
     if pb.get('type') != 'CoreAudio':
         pb['type'] = 'CoreAudio'
+        changed = True
+    if pb.get('enable_rate_adjust') != 'true':
+        pb['enable_rate_adjust'] = 'true'
         changed = True
     # If we created a new devices section, move it to be first key
     if created_devices:

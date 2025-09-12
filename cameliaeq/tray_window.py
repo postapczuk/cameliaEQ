@@ -1,5 +1,6 @@
 import os
 
+from PySide6 import QtCore
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import (
     QWidget,
@@ -32,11 +33,12 @@ from .settings import Settings, SettingsWindow, APP_NAME
 class TrayWindow(QWidget):
     def __init__(self, settings: Settings):
         super().__init__()
+        self.settings = settings
+
         self.setWindowTitle(APP_NAME)
         # Keep the small window always on top and as a tool window; fix size
         self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
 
-        self.settings = settings
         self.resize(320, 220)
 
         main_layout = QVBoxLayout()
@@ -52,7 +54,6 @@ class TrayWindow(QWidget):
         self.apply_timer.setInterval(400)  # ms
         self.apply_timer.timeout.connect(self.apply_knobs_to_camilla_dsp)
 
-        self.load_initial_values_from_camilla_dsp_yaml()
         print("Initial values loaded from camilla dsp config yaml")
 
     def prepare_knobs_group(self):
@@ -95,24 +96,35 @@ class TrayWindow(QWidget):
         settings_group.setLayout(settings_grid)
         # Output device selection
         self.device_combo = QComboBox()
-        devices = list_system_playback_devices()
-        if not devices:
-            self.device_combo.addItem("(No devices found)")
-            self.device_combo.setEnabled(False)
-        else:
-            self.device_combo.addItems(devices)
-            # Preselect saved setting if present
-            selected_device = self.settings.playback_device
-            if selected_device and selected_device in devices:
-                self.device_combo.setCurrentText(selected_device)
-
-            self.device_combo.currentTextChanged.connect(self.select_device)
+        self.fill_in_devices_into_combobox()
 
         settings_grid.addWidget(self.device_combo, 0, 0)
         settings_btn = QPushButton("Settings")
         settings_btn.clicked.connect(self.open_settings)
         settings_grid.addWidget(settings_btn, 0, 1)
+        self.load_initial_values_from_camilla_dsp_yaml()
         return settings_group
+
+    def fill_in_devices_into_combobox(self):
+        self.device_combo.currentTextChanged.disconnect(self.select_device)
+        devices = list_system_playback_devices()
+        self.device_combo.clear()
+        if not devices:
+            self.device_combo.addItem("(No devices found)")
+            self.device_combo.setEnabled(False)
+        else:
+            print(f"Selected device: {self.settings.playback_device}")
+            self.device_combo.addItems(devices)
+            # Preselect saved setting if present
+            selected_device = self.settings.playback_device
+            if selected_device in devices:
+                self.settings.playback_device = selected_device
+                self.device_combo.setCurrentText(selected_device)
+            else:
+                self.device_combo.addItem(selected_device)
+                self.device_combo.setCurrentText(selected_device)
+                self.device_combo.setItemData(len(devices), 0, QtCore.Qt.ItemDataRole.UserRole - 1)
+            self.device_combo.currentTextChanged.connect(self.select_device)
 
     def select_device(self):
         selected_device = self.device_combo.currentText()
@@ -127,7 +139,7 @@ class TrayWindow(QWidget):
         print(f"Device changed to {selected_device}")
 
     def open_settings(self):
-        self.settings_win = SettingsWindow(self.settings, self.on_settings_saved)
+        self.settings_win = SettingsWindow(self.settings, self.load_initial_values_from_camilla_dsp_yaml)
         # Make settings a tool and always on top too, and center over the tray window
         self.settings_win.setWindowFlags(self.settings_win.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
         try:
@@ -147,10 +159,6 @@ class TrayWindow(QWidget):
         self.settings_win.show()
         self.settings_win.raise_()
         self.settings_win.activateWindow()
-
-    def on_settings_saved(self, settings: Settings):
-        self.settings = settings
-        self.load_initial_values_from_camilla_dsp_yaml()
 
     def schedule_apply(self):
         self.apply_timer.start()

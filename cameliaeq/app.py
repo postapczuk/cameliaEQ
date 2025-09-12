@@ -1,17 +1,22 @@
 import sys
+import time
+from threading import Event, Thread
 
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QColor
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QSystemTrayIcon
 
+from .camilla_dsp import try_reload_camilla_dsp
+from .devices import list_system_playback_devices
 from .settings import Settings, APP_NAME
 from .tray_window import TrayWindow
 
 
 class MainApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, stop_event):
         super().__init__()
+        self.stop_event = stop_event
         # Make this host window a tool (though we don't show it)
         self.settings = Settings.load()
         self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
@@ -85,6 +90,7 @@ class MainApp(QMainWindow):
             self.position_window_under_tray()
             self.window.show()
             self.window.raise_()
+            self.window.fill_in_devices_into_combobox()
             self.window.activateWindow()
 
     def open_settings_window(self):
@@ -105,10 +111,38 @@ class MainApp(QMainWindow):
         p.end()
         return QIcon(pm)
 
+    def closeEvent(self, event):
+        # Signal the stop event to terminate the worker thread
+        self.stop_event.set()
+        event.accept()  # Continue with the close
+
+
+    def device_watcher(self, stop_event: Event, settings: Settings):
+        was_disconnected: bool = False
+        print("Device watching thread started...")
+        while not stop_event.is_set():
+            tmp_devices_contains_selected = settings.playback_device in list_system_playback_devices()
+            if not tmp_devices_contains_selected and not was_disconnected:
+                print("Device disconnected!")
+                self.tray.showMessage("Device disconnected", "CameliaEQ is waiting for the device.")
+                was_disconnected = True
+            elif tmp_devices_contains_selected and was_disconnected:
+                was_disconnected = False
+                try_reload_camilla_dsp(settings.port)
+                print("Device reconnected!")
+                self.tray.showMessage("Device reconnected", "CameliaEQ reloaded the device to CamillaDSP.")
+            time.sleep(3)
+        print("Device watching thread stopped.")
+
 
 def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
-    win = MainApp()
+    stop_event = Event()
+    win = MainApp(stop_event=stop_event)
+    device_watching_thread = Thread(target=win.device_watcher, args=(stop_event,win.settings))
+    device_watching_thread.start()
     # Keep the tray running; no main window
-    sys.exit(app.exec())
+    app_exec = app.exec()
+    device_watching_thread.join()
+    sys.exit(app_exec)

@@ -50,7 +50,7 @@ class Settings:
                 with open(SETTINGS_PATH, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f) or {}
                 settings = cls(**{k: data.get(k, v) for k, v in {"config_path": "", "port": 1234, "playback_device": "", "devices": {}}.items()})
-                print(f"Settings loaded")
+                print(f"Settings loaded: \n{settings}")
                 return settings
         except Exception as e:
             pass
@@ -67,10 +67,10 @@ class Settings:
 class SettingsWindow(QWidget):
     def __init__(self, settings: Settings, on_save):
         super().__init__()
+        self.settings = settings
         # Make settings a tool window and always on top
         self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
         self.setWindowTitle(f"{APP_NAME} Settings")
-        self.settings = settings
         self.on_save = on_save
         layout = QFormLayout()
 
@@ -113,6 +113,6 @@ class SettingsWindow(QWidget):
             changed = ensure_devices_section(cfg, self.settings.playback_device)
             if changed:
                 save_camilla_dsp_yaml(self.settings.config_path, cfg)
-        self.on_save(self.settings)
+        self.on_save()
         try_reload_camilla_dsp(self.settings.port)
         self.close()
