@@ -118,7 +118,7 @@ I'd recommend you to run the app from executable:
 - Go to `Settings` and set CamillaDSP config file that was set previously
 
 ## Build executable from sources
-If you'd like to run this APP from spurces, or build tour own executable:
+If you'd like to run this APP from sources, or build your own executable:
    - Go to the directory to which this repository is downloaded
    - Create new virtual environment:
      ```commandline
