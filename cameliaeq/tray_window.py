@@ -65,7 +65,7 @@ class TrayWindow(QWidget):
         for idx, name in enumerate(["Bass", "Middle", "Treble"]):
             label = QLabel(name)
             dial = QDial()
-            dial.setRange(-12, 12)
+            dial.setRange(-16, 16)
             dial.setNotchesVisible(True)
             dial.setPageStep(1)
             dial.setWrapping(False)
@@ -172,6 +172,9 @@ class TrayWindow(QWidget):
             return
         # Ensure required structures; save if changed
         changed = False
+        if camilla_dsp_cfg.get("title") != "CameliaEQ":
+            changed = True
+            camilla_dsp_cfg["title"] = "CameliaEQ"
         if ensure_devices_section(camilla_dsp_cfg, selected_device):
             changed = True
             if selected_device in all_saved_devices:
@@ -238,6 +241,9 @@ class TrayWindow(QWidget):
             return
 
         changed = False
+        if camilla_dsp_cfg.get("title") != "CameliaEQ":
+            changed = True
+            camilla_dsp_cfg["title"] = "CameliaEQ"
         if ensure_devices_section(camilla_dsp_cfg, selected_device):
             if selected_device in all_devices:
                 camilla_dsp_cfg = all_devices[selected_device]

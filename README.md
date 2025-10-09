@@ -59,7 +59,7 @@ brew install --cask blackhole-2ch
   ```
   mkdir config
   nano config/<CONFIG>.yml
-  echo title: CameliaEQ >> config/<CONFIG>.yml
+  echo $'' >> config/<CONFIG>.yml
   ```
 - Check if you are able to run CamillaDSP 
   ```

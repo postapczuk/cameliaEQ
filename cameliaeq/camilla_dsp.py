@@ -28,17 +28,17 @@ def save_camilla_dsp_yaml(path: str, data: dict) -> bool:
 DEFAULT_FILTERS = {
     "Bass": {
         "description": None,
-        "parameters": {"freq": 85, "gain": 3, "q": 0.9, "type": "Lowshelf"},
+        "parameters": {"freq": 95, "gain": 3, "q": 1, "type": "Lowshelf"},
         "type": "Biquad",
     },
     "Middle": {
         "description": None,
-        "parameters": {"freq": 1000, "gain": 0, "q": 0.5, "type": "Peaking"},
+        "parameters": {"freq": 750, "gain": 0, "q": 1, "type": "Peaking"},
         "type": "Biquad",
     },
     "Treble": {
         "description": None,
-        "parameters": {"freq": 6500, "gain": 2, "q": 0.7, "type": "Highshelf"},
+        "parameters": {"freq": 7500, "gain": 2, "q": 1, "type": "Highshelf"},
         "type": "Biquad",
     },
 }
@@ -133,7 +133,7 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         dev['capture'] = cap
         changed = True
     if cap.get('channels') != 2:
-        cap['channels'] = 2;
+        cap['channels'] = 2
         changed = True
     if cap.get('device') != 'BlackHole 2ch':
         cap['device'] = 'BlackHole 2ch'
@@ -156,9 +156,6 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
         changed = True
     if pb.get('type') != 'CoreAudio':
         pb['type'] = 'CoreAudio'
-        changed = True
-    if pb.get('enable_rate_adjust') != 'true':
-        pb['enable_rate_adjust'] = 'true'
         changed = True
     # If we created a new devices section, move it to be first key
     if created_devices:

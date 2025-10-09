@@ -58,10 +58,17 @@ class Settings:
         return cls()
 
     def save(self) -> None:
+        # Sanitize devices: drop empty-string keys to avoid invalid YAML entries like "? ''"
+        devices = {k: v for k, v in (self.devices or {}).items() if isinstance(k, str) and k.strip()}
         with open(SETTINGS_PATH, "w", encoding="utf-8") as f:
-            settings = {"config_path": self.config_path, "port": self.port, "playback_device": self.playback_device, "devices": self.devices}
+            settings = {
+                "config_path": self.config_path,
+                "port": self.port,
+                "playback_device": self.playback_device,
+                "devices": devices,
+            }
             yaml.safe_dump(settings, f, sort_keys=False)
-            print(f"Settings saved")
+            print(f"Settings saved: \n{settings}")
 
 
 class SettingsWindow(QWidget):
