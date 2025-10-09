@@ -65,13 +65,20 @@ brew install --cask blackhole-2ch
   ```
   ./camilladsp -w -p<WEBSOCKET_PORT> <DIRECTORY_TO_CAMILLADSP>/configs/<CONFIG>.yml
   ```
-  
-  __If you receive prompt about untrusted software, app is under system quarantine. To remove quarantine run, and retry:__ 
+  Don't worry if you get the following log:
+  ```
+  INFO [src/bin.rs:781] CamillaDSP version 3.0.1
+  INFO [src/bin.rs:782] Running on macos, aarch64
+  ERROR [src/bin.rs:939] Invalid config file!
+  EOF while parsing a value
+  ```
+  This is completely normal, and happens because the configuration file is empty
+
+  ### :warning::warning: WARNING :warning::warning:
+  If you receive prompt about untrusted software, app is under system quarantine. To remove quarantine run, and retry:
   ```
   xattr -d com.apple.quarantine <DIRECTORY_TO_CAMILLADSP> 
   ```
-
-  __If it's running. Just press `cmd+c` to close the app__
 - Prepare a startup file with a command `nano ~/Library/LaunchAgents/com.github.camilladsp.startup.plist` 
   and save it with this content:
   ```
@@ -97,6 +104,7 @@ brew install --cask blackhole-2ch
   ```commandline
   launchctl load ~/Library/LaunchAgents/com.github.camilladsp.startup.plist
   ```
+- Restart system
 
 ### 3. Run CameliaEQ
 There are two options to run the app. If you are not familiar with python, and you don't want to learn it, 
