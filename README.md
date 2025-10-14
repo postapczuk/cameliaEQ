@@ -117,6 +117,10 @@ I'd recommend you to run the app from executable:
   ```
 - Go to `Settings` and set CamillaDSP config file that was set previously
 
+## Linux
+___
+(TBD)
+
 ## Build executable from sources
 If you'd like to run this APP from sources, or build your own executable:
    - Go to the directory to which this repository is downloaded
@@ -144,7 +148,3 @@ If you'd like to run this APP from sources, or build your own executable:
      ```commandline
      pyinstaller --windowed --onefile --icon=icon.icns --name="cameliaEQ" cameliaeq/__main__.py
      ```
-
-## Linux
-___
-(TBD)
