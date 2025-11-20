@@ -122,6 +122,10 @@ def ensure_devices_section(cfg: dict, selected_device: str) -> bool:
     if dev.get('chunksize') != 256:
         dev['chunksize'] = 256
         changed = True
+    # Ensure target_level
+    if dev.get('target_level') != 256:
+        dev['target_level'] = 256
+        changed = True
     # Ensure samplerate
     if dev.get('samplerate') != 44100:
         dev['samplerate'] = 44100
